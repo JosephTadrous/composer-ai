@@ -28,6 +28,7 @@ class MusicGenerator:
     def __transform(self, df):
         df.pitches = pitch_tokenizer.detokenize_all(df.pitches)
         df[['duration', 'velocity']] = self.scaler.inverse_transform(df[['duration', 'velocity']])
+        df.velocity = np.round(df.velocity).astype(int)
 
     def __predict(self, df):
         x_pitches = np.expand_dims(np.array([arr for arr in df['pitches']]), axis=0)
