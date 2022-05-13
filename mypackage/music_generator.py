@@ -42,7 +42,7 @@ class MusicGenerator:
     def __tokenize_pitches(self, preds):
         pred_pitches = np.argwhere(preds >= 0.5).reshape(-1)
         if len(pred_pitches) < self.min_pitches:
-                pitches = self.__sample(self.min_pitches, num=1)
+            pitches = self.__sample(preds, num=self.min_pitches)
         elif len(pred_pitches) > self.max_pitches:
             pitches = self.__sample(preds, num=self.max_pitches)
         else:
