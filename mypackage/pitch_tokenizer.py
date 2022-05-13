@@ -2,6 +2,7 @@ import numpy as np
 
 min_pitch = 21
 max_pitch = 108
+pitch_scale_len = max_pitch - min_pitch
 
 
 def tokenize(pitches):
