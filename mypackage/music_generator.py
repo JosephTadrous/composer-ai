@@ -4,11 +4,12 @@ import pandas as pd
 
 
 class MusicGenerator:
-    def __init__(self, model, scaler, temparature: float = 1.0, min_pitches: int = 1, max_pitches: int = 10):
+    def __init__(self, model, scaler, temparature: float = 1.0, min_pitches: int = 1, max_pitches: int = 10,
+                 sampling: bool = True):
         self.model = model
         self.win = self.model.input_shape[0][1]
         self.scaler = scaler
-        self.temperature = temparature
+        self.sampling, self.temperature = sampling, temparature
         self.min_pitches, self.max_pitches = min_pitches, max_pitches
 
     def generate(self, num):
@@ -41,7 +42,7 @@ class MusicGenerator:
     def __tokenize_pitches(self, preds):
         pred_pitches = np.argwhere(preds >= 0.5).reshape(-1)
         if len(pred_pitches) < self.min_pitches:
-            pitches = self.__sample(self.min_pitches, num=1)
+                pitches = self.__sample(self.min_pitches, num=1)
         elif len(pred_pitches) > self.max_pitches:
             pitches = self.__sample(preds, num=self.max_pitches)
         else:
@@ -50,9 +51,10 @@ class MusicGenerator:
         return pitch_tokenizer.tokenize(pitches)
 
     def __sample(self, preds, num=1):
-        preds = np.asarray(preds).astype('float64')
-        preds = np.log(preds) / self.temperature
-        exp_preds = np.exp(preds)
-        preds = exp_preds / np.sum(exp_preds)
-        probas = np.random.multinomial(1, preds, 1)
-        return np.atleast_2d(np.argpartition(probas, -num)[-num:])
+        if self.sampling:
+            preds = np.asarray(preds).astype('float64')
+            preds = np.log(preds) / self.temperature
+            exp_preds = np.exp(preds)
+            preds = exp_preds / np.sum(exp_preds)
+            preds = np.random.multinomial(1, preds, 1)
+        return np.atleast_2d(np.argpartition(preds, -num)[-num:])
